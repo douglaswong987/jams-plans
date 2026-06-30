@@ -461,6 +461,17 @@ canvas#confetti {
   </div>
 </div>
 
+<div id="pw-overlay" class="overlay" style="z-index:300">
+  <div class="config-panel" style="max-width:360px;gap:1rem">
+    <h2>Enter admin password</h2>
+    <input type="password" id="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')pwSubmit()">
+    <div class="config-footer">
+      <button class="btn btn-pink" onclick="pwCancel()">Cancel</button>
+      <button class="btn" onclick="pwSubmit()">Save</button>
+    </div>
+  </div>
+</div>
+
 <div id="overlay" class="overlay">
   <div class="config-panel">
     <h2>Configure your hunt</h2>
