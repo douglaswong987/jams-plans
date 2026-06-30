@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scavenger Hunt</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fdf6f0;
+  --card: #fff;
+  --border: #f0d9e8;
+  --btn-green: #a8d5b5;
+  --btn-green-text: #2d5a3d;
+  --btn-green-hover: #90c8a0;
+  --btn-pink: #f0c4d8;
+  --btn-pink-text: #7a3357;
+  --btn-pink-hover: #e8b0c8;
+  --heading: #4a7c59;
+  --body: #7a6a6a;
+  --clue: #5a4a5a;
+  --dot-done: #a8d5b5;
+  --dot-current: #e8a0c0;
+  --dot-empty: #f0d9e8;
+  --config-accent: #c9a0bb;
+  --image-bg: #f7e9f2;
+  --image-color: #c9a0bb;
+}
+
+.theme-ocean {
+  --bg: #f0f6fc;
+  --card: #fff;
+  --border: #b8d8f0;
+  --btn-green: #7bbde0;
+  --btn-green-text: #1a4a6a;
+  --btn-green-hover: #62aed6;
+  --btn-pink: #b0d8f5;
+  --btn-pink-text: #1a4a6a;
+  --btn-pink-hover: #96c8ec;
+  --heading: #2a6090;
+  --body: #5a6a7a;
+  --clue: #3a5a7a;
+  --dot-done: #7bbde0;
+  --dot-current: #f0b8d0;
+  --dot-empty: #b8d8f0;
+  --config-accent: #7bbde0;
+  --image-bg: #dceefa;
+  --image-color: #7bbde0;
+}
+
+.theme-sunset {
+  --bg: #fef5ee;
+  --card: #fff;
+  --border: #f5d5b8;
+  --btn-green: #f0a878;
+  --btn-green-text: #6a2a10;
+  --btn-green-hover: #e8906a;
+  --btn-pink: #f5c8a0;
+  --btn-pink-text: #6a3010;
+  --btn-pink-hover: #edb888;
+  --heading: #b05020;
+  --body: #8a6858;
+  --clue: #7a5848;
+  --dot-done: #f0a878;
+  --dot-current: #f0c8a0;
+  --dot-empty: #f5d5b8;
+  --config-accent: #d08050;
+  --image-bg: #fde8d8;
+  --image-color: #d08050;
+}
+
+.theme-lavender {
+  --bg: #f5f0fc;
+  --card: #fff;
+  --border: #d8c8f0;
+  --btn-green: #b0a0e0;
+  --btn-green-text: #3a2870;
+  --btn-green-hover: #9888d8;
+  --btn-pink: #d8c8f0;
+  --btn-pink-text: #3a2870;
+  --btn-pink-hover: #c8b8e8;
+  --heading: #5a40a0;
+  --body: #6a5a8a;
+  --clue: #5a4a7a;
+  --dot-done: #b0a0e0;
+  --dot-current: #e8b0d8;
+  --dot-empty: #d8c8f0;
+  --config-accent: #9880d0;
+  --image-bg: #ece8fa;
+  --image-color: #9880d0;
+}
+
+body {
+  font-family: 'Georgia', serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  transition: background 0.4s;
+}
+
+.scene {
+  width: 100%;
+  max-width: 560px;
+}
+
+.page {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.page.active {
+  display: flex;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--heading);
+  text-align: center;
+  line-height: 1.4;
+  transition: color 0.4s;
+}
+
+p {
+  font-size: 1.1rem;
+  color: var(--body);
+  text-align: center;
+  line-height: 1.7;
+  transition: color 0.4s;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 100%;
+  border: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  transition: border-color 0.4s;
+}
+
+.hunt-image-wrap {
+  width: 100%;
+  max-width: 380px;
+  height: 260px;
+  border-radius: 14px;
+  background: var(--image-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--image-color);
+  font-size: 0.95rem;
+  font-family: sans-serif;
+  overflow: hidden;
+  transition: background 0.4s;
+}
+
+.hunt-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.clue-text {
+  font-size: 1.05rem;
+  color: var(--clue);
+  text-align: center;
+  line-height: 1.7;
+  font-style: italic;
+  transition: color 0.4s;
+}
+
+.btn {
+  background: var(--btn-green);
+  color: var(--btn-green-text);
+  border: none;
+  border-radius: 50px;
+  padding: 0.8rem 2.2rem;
+  font-size: 1rem;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, color 0.4s;
+}
+
+.btn:hover { background: var(--btn-green-hover); }
+.btn:active { transform: scale(0.97); }
+
+.btn-pink {
+  background: var(--btn-pink);
+  color: var(--btn-pink-text);
+}
+.btn-pink:hover { background: var(--btn-pink-hover); }
+
+.btn-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.progress {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--dot-empty);
+  transition: background 0.3s;
+}
+
+.dot.done { background: var(--dot-done); }
+.dot.current { background: var(--dot-current); }
+
+.config-btn {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--config-accent);
+  transition: border-color 0.2s;
+  z-index: 100;
+}
+
+.config-btn:hover { border-color: var(--config-accent); }
+
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(60,40,60,0.18);
+  z-index: 200;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 2rem 1rem;
+}
+
+.overlay.open { display: flex; }
+
+.config-panel {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 620px;
+  border: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: auto;
+}
+
+.config-panel h2 {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--heading);
+  font-family: 'Georgia', serif;
+}
+
+.config-section {
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.config-section h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--config-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-family: sans-serif;
+}
+
+label.field-label {
+  font-size: 0.85rem;
+  color: var(--body);
+  font-family: sans-serif;
+  display: block;
+}
+
+input[type="text"], input[type="url"], textarea {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-family: sans-serif;
+  color: #4a3a4a;
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+input[type="text"]:focus, input[type="url"]:focus, textarea:focus {
+  border-color: var(--config-accent);
+}
+
+.hunt-config-block {
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+}
+
+.hunt-config-block h4 {
+  font-size: 0.9rem;
+  color: var(--heading);
+  font-family: sans-serif;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: var(--btn-pink);
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: sans-serif;
+  padding: 0 0.3rem;
+}
+
+.remove-btn:hover { color: var(--btn-pink-text); }
+
+.add-btn {
+  background: none;
+  border: 1.5px dashed var(--config-accent);
+  border-radius: 10px;
+  color: var(--config-accent);
+  font-family: sans-serif;
+  font-size: 0.9rem;
+  padding: 0.6rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  width: 100%;
+}
+
+.add-btn:hover { border-color: var(--btn-green); color: var(--btn-green-text); }
+
+.config-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2.5px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+  display: inline-block;
+}
+
+.swatch:hover { transform: scale(1.1); }
+.swatch.active { border-color: #888; }
+.swatch-pink { background: linear-gradient(135deg, #a8d5b5 50%, #f0c4d8 50%); }
+.swatch-ocean { background: linear-gradient(135deg, #7bbde0 50%, #b0d8f5 50%); }
+.swatch-sunset { background: linear-gradient(135deg, #f0a878 50%, #f5c8a0 50%); }
+.swatch-lavender { background: linear-gradient(135deg, #b0a0e0 50%, #d8c8f0 50%); }
+
+canvas#confetti {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.nav-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.5rem; }
+  .card { padding: 1.5rem; }
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<button class="config-btn" onclick="openConfig()">⚙️</button>
+
+<div class="scene" id="scene">
+  <div id="page-landing" class="page active">
+    <h1 id="landing-title">Happy Birthday! 🌸</h1>
+    <div class="card">
+      <p id="landing-text">Is today your special day?</p>
+      <div class="btn-row">
+        <button class="btn" onclick="confirmYes()">Yes ✓</button>
+        <button class="btn btn-pink" onclick="confirmNo()">No</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-hunt" class="page">
+    <div class="progress" id="progress-dots"></div>
+    <h1 id="hunt-title">Find your first surprise!</h1>
+    <div class="card">
+      <div class="hunt-image-wrap" id="hunt-image-wrap">
+        <span id="hunt-image-placeholder">No image set</span>
+      </div>
+      <p class="clue-text" id="hunt-clue">Your clue will appear here.</p>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-pink" id="btn-prev" onclick="prevHunt()" style="display:none">← Back</button>
+      <button class="btn" id="btn-next" onclick="nextHunt()">Next →</button>
+    </div>
+  </div>
+
+  <div id="page-congrats" class="page">
+    <h1 id="congrats-title">You found them all! 🎉</h1>
+    <div class="card">
+      <p id="congrats-text">Happy Birthday! Every gift was hidden with love, just for you.</p>
+      <button class="btn" onclick="startOver()">Start over</button>
+    </div>
+  </div>
+</div>
+
+<div id="overlay" class="overlay">
+  <div class="config-panel">
+    <h2>Configure your hunt</h2>
+
+    <div class="config-section">
+      <h3>Color scheme</h3>
+      <div class="theme-swatches">
+        <span class="swatch swatch-pink active" data-theme="" title="Pink & green" onclick="selectTheme(this, '')"></span>
+        <span class="swatch swatch-ocean" data-theme="theme-ocean" title="Ocean" onclick="selectTheme(this, 'theme-ocean')"></span>
+        <span class="swatch swatch-sunset" data-theme="theme-sunset" title="Sunset" onclick="selectTheme(this, 'theme-sunset')"></span>
+        <span class="swatch swatch-lavender" data-theme="theme-lavender" title="Lavender" onclick="selectTheme(this, 'theme-lavender')"></span>
+      </div>
+    </div>
+
+    <div class="config-section">
+      <h3>Landing page</h3>
+      <label class="field-label">Heading</label>
+      <input type="text" id="cfg-title" placeholder="Happy Birthday! 🌸">
+      <label class="field-label">Message</label>
+      <textarea id="cfg-text" rows="2" placeholder="Is today your special day?"></textarea>
+      <label class="field-label">Redirect URL when "No" is clicked</label>
+      <input type="url" id="cfg-no-url" placeholder="https://example.com">
+    </div>
+
+    <div class="config-section">
+      <h3>Congratulations page</h3>
+      <label class="field-label">Heading</label>
+      <input type="text" id="cfg-congrats-title" placeholder="You found them all! 🎉">
+      <label class="field-label">Message</label>
+      <textarea id="cfg-congrats-text" rows="2" placeholder="Happy Birthday!..."></textarea>
+    </div>
+
+    <div class="config-section">
+      <h3>Hunt pages</h3>
+      <div id="hunt-configs"></div>
+      <button class="add-btn" onclick="addHuntPage()">+ Add a page</button>
+    </div>
+
+    <div class="config-footer">
+      <button class="btn btn-pink" onclick="closeConfig()">Cancel</button>
+      <button class="btn btn-pink" onclick="exportHTML()" style="background:var(--btn-pink)">Export file</button>
+      <button class="btn" onclick="saveConfig()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var state = {
+  theme: '',
+  noUrl: '',
+  landingTitle: 'Happy Birthday! 🌸',
+  landingText: 'Is today your special day?',
+  congratsTitle: 'You found them all! 🎉',
+  congratsText: 'Happy Birthday! Every gift was hidden with love, just for you.',
+  currentHunt: 0,
+  pages: [
+    { title: 'Find your first surprise!', image: '', clue: 'Look somewhere warm and cozy, where you love to curl up with a blanket.' },
+    { title: 'Getting warmer...', image: '', clue: 'This one hides where mornings begin and coffee fills the air.' },
+    { title: 'Almost there!', image: '', clue: 'The last one is waiting somewhere that holds your favourite things.' }
+  ]
+};
+
+async function save() {
+  try {
+    await fetch('/api/set-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state)
+    });
+  } catch(e) {
+    try { localStorage.setItem('sh', JSON.stringify(state)); } catch(e2) {}
+  }
+}
+
+async function load() {
+  try {
+    var res = await fetch('/api/get-config');
+    if (res.ok) {
+      var d = await res.json();
+      if (d && Object.keys(d).length) state = Object.assign(state, d);
+    }
+  } catch(e) {
+    try { var d = localStorage.getItem('sh'); if (d) state = Object.assign(state, JSON.parse(d)); } catch(e2) {}
+  }
+}
+
+document.body.style.opacity = '0';
+load().then(function() {
+  applyTheme(state.theme);
+  renderLanding();
+  renderCongrats();
+  document.body.style.transition = 'opacity 0.3s';
+  document.body.style.opacity = '1';
+});
+
+function applyTheme(t) {
+  document.body.className = t || '';
+  state.theme = t || '';
+}
+
+function renderLanding() {
+  document.getElementById('landing-title').textContent = state.landingTitle;
+  document.getElementById('landing-text').textContent = state.landingText;
+}
+
+function renderCongrats() {
+  document.getElementById('congrats-title').textContent = state.congratsTitle;
+  document.getElementById('congrats-text').textContent = state.congratsText;
+}
+
+var currentPage = 'page-landing';
+
+function goTo(id) {
+  if (currentPage === id) return;
+  var scene = document.getElementById('scene');
+  var from = document.getElementById(currentPage);
+  var to = document.getElementById(id);
+  scene.style.transition = 'opacity 0.2s ease';
+  scene.style.opacity = '0';
+  setTimeout(function() {
+    from.classList.remove('active');
+    to.classList.add('active');
+    currentPage = id;
+    scene.style.opacity = '1';
+  }, 210);
+}
+
+function confirmYes() {
+  state.currentHunt = 0;
+  renderHunt();
+  goTo('page-hunt');
+}
+
+function confirmNo() {
+  if (state.noUrl) { window.location.href = state.noUrl; }
+  else { alert('No redirect URL set. Add one in settings!'); }
+}
+
+function startOver() { goTo('page-landing'); }
+
+function renderHunt() {
+  var i = state.currentHunt;
+  var pg = state.pages[i];
+  if (!pg) return;
+
+  document.getElementById('hunt-title').textContent = pg.title || ('Page ' + (i+1));
+  document.getElementById('hunt-clue').textContent = pg.clue || 'No clue set.';
+
+  var wrap = document.getElementById('hunt-image-wrap');
+  var ph = document.getElementById('hunt-image-placeholder');
+  var existing = wrap.querySelector('img');
+  if (existing) existing.remove();
+
+  if (pg.image) {
+    var img = document.createElement('img');
+    img.src = pg.image;
+    img.alt = '';
+    wrap.appendChild(img);
+    ph.style.display = 'none';
+  } else {
+    ph.style.display = '';
+    ph.textContent = 'No image set';
+  }
+
+  var dots = document.getElementById('progress-dots');
+  dots.innerHTML = '';
+  state.pages.forEach(function(_, j) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (j < i ? ' done' : j === i ? ' current' : '');
+    dots.appendChild(d);
+  });
+
+  document.getElementById('btn-prev').style.display = i > 0 ? '' : 'none';
+  document.getElementById('btn-next').textContent = i < state.pages.length - 1 ? 'Next →' : 'Done 🎉';
+}
+
+function nextHunt() {
+  if (state.currentHunt < state.pages.length - 1) {
+    slideHunt(1, function() {
+      state.currentHunt++;
+      renderHunt();
+    });
+  } else {
+    goTo('page-congrats');
+    launchConfetti();
+  }
+}
+
+function prevHunt() {
+  if (state.currentHunt > 0) {
+    slideHunt(-1, function() {
+      state.currentHunt--;
+      renderHunt();
+    });
+  }
+}
+
+function slideHunt(dir, cb) {
+  var card = document.getElementById('page-hunt');
+  card.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+  card.style.opacity = '0';
+  card.style.transform = 'translateX(' + (dir * 32) + 'px)';
+  setTimeout(function() {
+    cb();
+    card.style.transition = 'none';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(' + (dir * -32) + 'px)';
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        card.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateX(0)';
+      });
+    });
+  }, 230);
+}
+
+function openConfig() {
+  document.getElementById('cfg-title').value = state.landingTitle;
+  document.getElementById('cfg-text').value = state.landingText;
+  document.getElementById('cfg-no-url').value = state.noUrl;
+  document.getElementById('cfg-congrats-title').value = state.congratsTitle;
+  document.getElementById('cfg-congrats-text').value = state.congratsText;
+  document.querySelectorAll('.swatch').forEach(function(s) {
+    s.classList.toggle('active', (s.dataset.theme || '') === (state.theme || ''));
+  });
+  renderHuntConfigs();
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeConfig() { document.getElementById('overlay').classList.remove('open'); }
+
+function selectTheme(el, t) {
+  document.querySelectorAll('.swatch').forEach(function(s) { s.classList.remove('active'); });
+  el.classList.add('active');
+  applyTheme(t);
+}
+
+function renderHuntConfigs() {
+  var c = document.getElementById('hunt-configs');
+  c.innerHTML = '';
+  state.pages.forEach(function(pg, i) {
+    var b = document.createElement('div');
+    b.className = 'hunt-config-block';
+    b.innerHTML =
+      '<h4>Page ' + (i+1) + '<button class="remove-btn" onclick="removeHuntPage('+i+')">✕</button></h4>' +
+      '<label class="field-label">Page heading</label>' +
+      '<input type="text" id="chi-'+i+'" value="'+esc(pg.title)+'" placeholder="Find your surprise!">' +
+      '<label class="field-label">Image URL</label>' +
+      '<input type="url" id="cim-'+i+'" value="'+esc(pg.image)+'" placeholder="https://...">' +
+      '<label class="field-label">Clue text</label>' +
+      '<textarea id="ccl-'+i+'" rows="2">'+esc(pg.clue)+'</textarea>';
+    c.appendChild(b);
+  });
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function addHuntPage() {
+  state.pages.push({ title: '', image: '', clue: '' });
+  renderHuntConfigs();
+}
+
+function removeHuntPage(i) {
+  if (state.pages.length <= 1) { alert('Need at least one page.'); return; }
+  state.pages.splice(i, 1);
+  renderHuntConfigs();
+}
+
+async function saveConfig() {
+  state.landingTitle = document.getElementById('cfg-title').value || 'Happy Birthday! 🌸';
+  state.landingText = document.getElementById('cfg-text').value || '';
+  state.noUrl = document.getElementById('cfg-no-url').value;
+  state.congratsTitle = document.getElementById('cfg-congrats-title').value || 'You found them all! 🎉';
+  state.congratsText = document.getElementById('cfg-congrats-text').value || '';
+  state.pages.forEach(function(pg, i) {
+    pg.title = document.getElementById('chi-'+i).value;
+    pg.image = document.getElementById('cim-'+i).value;
+    pg.clue = document.getElementById('ccl-'+i).value;
+  });
+  save().then(function() {
+    renderLanding();
+    renderCongrats();
+    if (currentPage === 'page-hunt') renderHunt();
+    closeConfig();
+  });
+}
+
+function exportHTML() {
+  saveConfig();
+  var html = document.documentElement.outerHTML;
+  var stateStr = JSON.stringify(state);
+  var inject = '<script>var _BAKED='+stateStr+';<\/script>';
+  var loadScript = "function load(){try{var d=localStorage.getItem('sh');if(d)state=Object.assign(state,JSON.parse(d));}catch(e){}}";
+  var bakedLoad = "function load(){try{var d=localStorage.getItem('sh');if(d)state=Object.assign(state,JSON.parse(d));}catch(e){}if(typeof _BAKED!=='undefined')state=Object.assign(state,_BAKED);}";
+  html = html.replace(loadScript, bakedLoad);
+  html = html.replace('</head>', inject + '</head>');
+  var blob = new Blob([html], { type: 'text/html' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'scavenger-hunt.html';
+  a.click();
+}
+
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeConfig();
+});
+
+var confettiParticles = [];
+var confettiActive = false;
+var confettiCanvas = document.getElementById('confetti');
+var ctx = confettiCanvas.getContext('2d');
+
+function launchConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+  confettiParticles = [];
+  var colors = ['#a8d5b5','#f0c4d8','#fde68a','#b0d8f5','#d8c8f0','#f5c8a0'];
+  for (var i = 0; i < 140; i++) {
+    confettiParticles.push({
+      x: Math.random() * confettiCanvas.width,
+      y: -10 - Math.random() * 200,
+      r: 5 + Math.random() * 6,
+      d: 2 + Math.random() * 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      tilt: Math.random() * 20 - 10,
+      tiltSpeed: 0.08 + Math.random() * 0.08,
+      angle: 0,
+      shape: Math.random() > 0.5 ? 'circle' : 'rect'
+    });
+  }
+  if (!confettiActive) {
+    confettiActive = true;
+    animateConfetti();
+  }
+}
+
+function animateConfetti() {
+  if (!confettiActive) return;
+  ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  var alive = false;
+  confettiParticles.forEach(function(p) {
+    p.y += p.d;
+    p.angle += p.tiltSpeed;
+    p.tilt = Math.sin(p.angle) * 12;
+    if (p.y < confettiCanvas.height + 20) alive = true;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.tilt * Math.PI / 180);
+    ctx.fillStyle = p.color;
+    if (p.shape === 'circle') {
+      ctx.beginPath();
+      ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.4);
+    }
+    ctx.restore();
+  });
+  if (alive) {
+    requestAnimationFrame(animateConfetti);
+  } else {
+    confettiActive = false;
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+}
+</script>
+</body>
+</html>
